@@ -2,6 +2,8 @@
 
 Essentia-powered music analysis plugin for Jellyfin that brings Plexamp-class sonic analysis and smart playlist generation to your self-hosted media server.
 
+## UNTESTED AS OF JULY 9, 2025
+
 ## Features
 
 - 🎵 **Comprehensive Audio Analysis**: Extract 80+ musical descriptors using Essentia
