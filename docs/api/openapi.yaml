@@ -1,0 +1,354 @@
+openapi: 3.0.0
+info:
+  title: JellySentia API
+  description: Essentia-powered music analysis plugin for Jellyfin
+  version: 1.0.0
+  contact:
+    name: AKSDug
+    url: https://github.com/AKSDug/jellysentia
+
+servers:
+  - url: http://localhost:8096/api/jellysentia
+    description: Local Jellyfin server
+
+paths:
+  /analyze/track/{id}:
+    get:
+      summary: Analyze single track
+      description: Trigger analysis for a specific track in the library
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Track ID
+      responses:
+        '200':
+          description: Analysis started successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  itemId:
+                    type: string
+                    format: uuid
+        '404':
+          description: Track not found
+        '500':
+          description: Internal server error
+
+  /analyze/library:
+    post:
+      summary: Analyze entire library
+      description: Start analysis of all tracks in the library
+      responses:
+        '200':
+          description: Library analysis started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+
+  /analyze/status:
+    get:
+      summary: Get analysis status
+      description: Get current status of library analysis
+      responses:
+        '200':
+          description: Analysis status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isRunning:
+                    type: boolean
+                  progress:
+                    type: number
+                    minimum: 0
+                    maximum: 100
+                  analyzed:
+                    type: integer
+                  total:
+                    type: integer
+                  errors:
+                    type: integer
+
+  /similarity/track/{id}:
+    get:
+      summary: Find similar tracks
+      description: Get tracks similar to the specified track
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Track ID
+        - name: count
+          in: query
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+          description: Number of similar tracks to return
+      responses:
+        '200':
+          description: Similar tracks found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                    artist:
+                      type: string
+                    album:
+                      type: string
+                    similarity:
+                      type: number
+                      minimum: 0
+                      maximum: 1
+                    distance:
+                      type: number
+                      minimum: 0
+        '500':
+          description: Internal server error
+
+  /similarity/index/build:
+    post:
+      summary: Build similarity index
+      description: Build or rebuild the similarity index for all analyzed tracks
+      responses:
+        '200':
+          description: Index built successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '500':
+          description: Internal server error
+
+  /playlists/smart:
+    post:
+      summary: Create smart playlist
+      description: Create a new smart playlist based on audio features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  description: Playlist name
+                minTempo:
+                  type: number
+                  minimum: 60
+                  maximum: 200
+                maxTempo:
+                  type: number
+                  minimum: 60
+                  maximum: 200
+                minEnergy:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                maxEnergy:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                minValence:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                maxValence:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                minDanceability:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                maxDanceability:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                key:
+                  type: string
+                  enum: [C, C#, D, D#, E, F, F#, G, G#, A, A#, B]
+                scale:
+                  type: string
+                  enum: [major, minor]
+                sortBy:
+                  type: string
+                  enum: [tempo, energy, valence, danceability, random]
+                  default: random
+                limit:
+                  type: integer
+                  minimum: 1
+                  maximum: 500
+                  default: 100
+      responses:
+        '200':
+          description: Playlist created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  itemCount:
+                    type: integer
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+
+  /playlists/smart/preview:
+    get:
+      summary: Preview smart playlist
+      description: Preview tracks that would be included in a smart playlist
+      parameters:
+        - name: minTempo
+          in: query
+          schema:
+            type: number
+        - name: maxTempo
+          in: query
+          schema:
+            type: number
+        - name: minEnergy
+          in: query
+          schema:
+            type: number
+        - name: maxEnergy
+          in: query
+          schema:
+            type: number
+        - name: key
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Preview tracks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tracks:
+                    type: array
+                    items:
+                      type: string
+
+  /features/track/{id}:
+    get:
+      summary: Get track features
+      description: Get extracted audio features for a specific track
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Track features
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tempo:
+                    type: number
+                  key:
+                    type: string
+                  scale:
+                    type: string
+                  energy:
+                    type: number
+                  danceability:
+                    type: number
+                  valence:
+                    type: number
+                  acousticness:
+                    type: number
+                  instrumentalness:
+                    type: number
+                  speechiness:
+                    type: number
+                  loudness:
+                    type: number
+        '404':
+          description: Track not found or not analyzed
+
+  /health:
+    get:
+      summary: Health check
+      description: Check if the service is healthy
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy, unhealthy]
+                  services:
+                    type: object
+                    properties:
+                      database:
+                        type: boolean
+                      analysisCore:
+                        type: boolean
+                      similarityIndex:
+                        type: boolean
+
+components:
+  securitySchemes:
+    JellyfinAuth:
+      type: apiKey
+      in: header
+      name: X-Emby-Token
+
+security:
+  - JellyfinAuth: []

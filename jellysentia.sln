@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugin", "plugin", "{7F42074E-682A-A599-6CDB-8399CB51B8EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JellySentia", "plugin\jellyfin\JellySentia.csproj", "{E08D491C-1464-F0A4-ED89-532725577115}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E08D491C-1464-F0A4-ED89-532725577115}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E08D491C-1464-F0A4-ED89-532725577115}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E08D491C-1464-F0A4-ED89-532725577115}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E08D491C-1464-F0A4-ED89-532725577115}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E08D491C-1464-F0A4-ED89-532725577115} = {7F42074E-682A-A599-6CDB-8399CB51B8EF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C17F1F59-4E04-4D5D-AD95-F86A24A351F6}
+	EndGlobalSection
+EndGlobal

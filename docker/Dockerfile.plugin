@@ -1,0 +1,30 @@
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+
+WORKDIR /src
+COPY plugin/jellyfin/JellySentia.csproj plugin/jellyfin/
+RUN dotnet restore plugin/jellyfin/JellySentia.csproj
+
+COPY plugin/ plugin/
+WORKDIR /src/plugin/jellyfin
+RUN dotnet build JellySentia.csproj -c Release -o /app/build
+RUN dotnet publish JellySentia.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:7.0-alpine
+
+RUN apk add --no-cache \
+    icu-libs \
+    krb5-libs \
+    libgcc \
+    libintl \
+    libssl1.1 \
+    libstdc++ \
+    zlib
+
+WORKDIR /plugin
+COPY --from=build /app/publish .
+
+# Create plugin manifest
+RUN echo '{"guid":"a4df60c5-6ab4-412a-8f79-2cab93fb2bc5","name":"JellySentia","description":"Essentia-powered music analysis","overview":"Advanced audio analysis and smart playlists","owner":"AKSDug","category":"Music","versions":[{"version":"1.0.0.0","changelog":"Initial release","targetAbi":"10.8.0.0","sourceUrl":"https://github.com/AKSDug/jellysentia","checksum":"","timestamp":"2024-01-15T00:00:00Z"}]}' > manifest.json
+
+VOLUME /plugin
+CMD ["cp", "-r", ".", "/plugin/"]

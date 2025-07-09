@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package jellysentia;
+
+service Analysis {
+    rpc AnalyzeTrack(AnalysisRequest) returns (AnalysisResponse);
+    rpc AnalyzeBatch(BatchAnalysisRequest) returns (stream AnalysisProgress);
+    rpc GetFeatures(GetFeaturesRequest) returns (GetFeaturesResponse);
+}
+
+service Similarity {
+    rpc FindSimilar(SimilarityRequest) returns (SimilarityResponse);
+    rpc BuildIndex(BuildIndexRequest) returns (BuildIndexResponse);
+    rpc QueryIndex(QueryIndexRequest) returns (QueryIndexResponse);
+}
+
+message AnalysisRequest {
+    string file_path = 1;
+    string depth = 2;
+    repeated string descriptors = 3;
+}
+
+message AnalysisResponse {
+    string file_path = 1;
+    map<string, string> features = 2;
+    bytes feature_vector = 3;
+    string error = 4;
+}
+
+message BatchAnalysisRequest {
+    repeated string file_paths = 1;
+    string depth = 2;
+    repeated string descriptors = 3;
+}
+
+message AnalysisProgress {
+    int32 total = 1;
+    int32 completed = 2;
+    int32 errors = 3;
+    string current_file = 4;
+    float progress_percent = 5;
+}
+
+message GetFeaturesRequest {
+    string item_id = 1;
+}
+
+message GetFeaturesResponse {
+    map<string, string> features = 1;
+    bytes feature_vector = 2;
+}
+
+message SimilarityRequest {
+    bytes feature_vector = 1;
+    int32 top_k = 2;
+}
+
+message SimilarityResponse {
+    repeated SimilarityMatch matches = 1;
+}
+
+message SimilarityMatch {
+    string item_id = 1;
+    float similarity = 2;
+    float distance = 3;
+}
+
+message BuildIndexRequest {
+    repeated IndexItem items = 1;
+}
+
+message IndexItem {
+    string item_id = 1;
+    bytes feature_vector = 2;
+}
+
+message BuildIndexResponse {
+    bool success = 1;
+    int32 item_count = 2;
+    string error = 3;
+}
+
+message QueryIndexRequest {
+    string item_id = 1;
+    int32 top_k = 2;
+}
+
+message QueryIndexResponse {
+    repeated SimilarityMatch matches = 1;
+}
