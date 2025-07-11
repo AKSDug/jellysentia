@@ -1,4 +1,4 @@
-# JellySentia
+# CONCEPT JellySentia
 
 Essentia-powered music analysis plugin for Jellyfin that brings Plexamp-class sonic analysis and smart playlist generation to your self-hosted media server.
 
